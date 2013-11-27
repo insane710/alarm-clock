@@ -15,3 +15,7 @@ Able to snooze
 On screen notification is present
 
 Able to snooze alarm by shaking the phone.
+
+//
+Nice to have, able to set alarm with input 6:00 PM tomorrow or tomorrow 6 pm should set alarm for following 6:00 PM - in Progress
+//
