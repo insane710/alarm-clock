@@ -60,12 +60,21 @@
     // Dispose of any resources that can be recreated.
 }
 
+#pragma mark - functions
+
 -(void) addAlarm {
     ALSetViewController *saViewController = [[ALSetViewController alloc] initWithNibName:@"ALSetViewController" bundle:nil];
     [self.navigationController presentViewController:[[UINavigationController alloc] initWithRootViewController:saViewController] animated:YES completion:^{
         
     }];
 }
+
+-(void) deleteAlarm {
+    [appDelegate.managedObjectContext deleteObject:[self.fetchedResultsController.fetchedObjects objectAtIndex:viewingAlarmIndexPath.row]];
+    [appDelegate saveContext];
+}
+
+#pragma mark - fetchedresulsts controller 
 
 - (NSFetchedResultsController *)fetchedResultsController {
     
@@ -74,24 +83,71 @@
     }
     
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription
-                                   entityForName:@"ALList" inManagedObjectContext:appDelegate.managedObjectContext];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"ALList" inManagedObjectContext:appDelegate.managedObjectContext];
     [fetchRequest setEntity:entity];
     
-    NSSortDescriptor *sort = [[NSSortDescriptor alloc]
-                              initWithKey:@"alarmTime" ascending:NO];
-    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sort]];
-    
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"alarmTime" ascending:NO];
+    [fetchRequest setSortDescriptors:[NSArray arrayWithObject:sortDescriptor]];
     [fetchRequest setFetchBatchSize:20];
     
-    NSFetchedResultsController *theFetchedResultsController =
-    [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
-                                        managedObjectContext:appDelegate.managedObjectContext sectionNameKeyPath:nil
-                                                   cacheName:@"Root"];
+    NSFetchedResultsController *theFetchedResultsController = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
+                                                                                                  managedObjectContext:appDelegate.managedObjectContext sectionNameKeyPath:nil
+                                                                                                             cacheName:@"Root"];
     self.fetchedResultsController = theFetchedResultsController;
     _fetchedResultsController.delegate = self;
     
     return _fetchedResultsController;
+}
+
+
+#pragma mark - fetchedresults controller delegates
+
+- (void)controllerWillChangeContent:(NSFetchedResultsController *)controller {
+    [self.tableView beginUpdates];
+}
+
+- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
+    [self.tableView endUpdates];
+    if([self.fetchedResultsController.fetchedObjects count] > 0) {
+        [self.tableView reloadData];
+    }
+    else {
+        
+    }
+}
+
+- (void)controller:(NSFetchedResultsController *)controller didChangeObject:(id)anObject atIndexPath:(NSIndexPath *)indexPath forChangeType:(NSFetchedResultsChangeType)type newIndexPath:(NSIndexPath *)newIndexPath {
+	switch(type) {
+        case NSFetchedResultsChangeInsert:
+			[self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+            break;
+        case NSFetchedResultsChangeDelete:
+			[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+			break;
+        case NSFetchedResultsChangeUpdate: {
+            [[self tableView] reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+            break;
+        }
+        case NSFetchedResultsChangeMove:
+            break;
+        default:
+            break;
+    }
+}
+
+- (void)controller:(NSFetchedResultsController *)controller didChangeSection:(id <NSFetchedResultsSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type {
+    switch(type) {
+        case NSFetchedResultsChangeInsert:
+            break;
+        case NSFetchedResultsChangeDelete:
+            break;
+        case NSFetchedResultsChangeMove:
+            break;
+        case NSFetchedResultsChangeUpdate:
+            break;
+        default:
+            break;
+    }
 }
 
 #pragma mark - Table view data source
@@ -119,7 +175,7 @@
     cell.detailTextLabel.font = [UIFont systemFontOfSize:14];
     ALList *alarmInfo = [self.fetchedResultsController.fetchedObjects objectAtIndex:indexPath.row];
     
-    if ([alarmInfo.alarmTime compare:[NSDate date]] == NSOrderedAscending) {
+    if ([alarmInfo.alarmTime compare:[NSDate date]] == NSOrderedAscending) {//past alarms displayed in normal font
         cell.textLabel.font = [UIFont systemFontOfSize:18];
         cell.detailTextLabel.font = [UIFont systemFontOfSize:12];
     }
@@ -170,59 +226,6 @@
     }   
 }
 
-
-
-#pragma mark Fetched result controller delegates
-
-- (void)controllerWillChangeContent:(NSFetchedResultsController *)controller {
-    [self.tableView beginUpdates];
-}
-
-- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
-    [self.tableView endUpdates];
-    if([self.fetchedResultsController.fetchedObjects count] > 0) {
-        [self.tableView reloadData];
-    }
-    else {
-        
-    }
-}
-
-
-- (void)controller:(NSFetchedResultsController *)controller didChangeObject:(id)anObject atIndexPath:(NSIndexPath *)indexPath forChangeType:(NSFetchedResultsChangeType)type newIndexPath:(NSIndexPath *)newIndexPath {
-	switch(type) {
-        case NSFetchedResultsChangeInsert:
-			[self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-        case NSFetchedResultsChangeDelete:
-			[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-			break;
-        case NSFetchedResultsChangeUpdate: {
-            [[self tableView] reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-        }
-        case NSFetchedResultsChangeMove:
-            break;
-        default:
-            break;
-    }
-}
-
-- (void)controller:(NSFetchedResultsController *)controller didChangeSection:(id <NSFetchedResultsSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type {
-    switch(type) {
-        case NSFetchedResultsChangeInsert:
-            break;
-        case NSFetchedResultsChangeDelete:
-            break;
-        case NSFetchedResultsChangeMove:
-            break;
-        case NSFetchedResultsChangeUpdate:
-            break;
-        default:
-            break;
-    }
-}
-
 /*
 // Override to support rearranging the table view.
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
@@ -266,11 +269,6 @@
     [self.navigationController presentViewController:navCtr animated:YES completion:^{
         viewingAlarmIndexPath = [NSIndexPath indexPathForRow:indexPath.row inSection:indexPath.section];
     }];
-}
-
--(void) deleteAlarm {
-    [appDelegate.managedObjectContext deleteObject:[self.fetchedResultsController.fetchedObjects objectAtIndex:viewingAlarmIndexPath.row]];
-    [appDelegate saveContext];
 }
 
 @end

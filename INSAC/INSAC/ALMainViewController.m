@@ -54,7 +54,8 @@
     self.dateLabel.text = ALdateString;
     self.snoozeLabel.text = [NSString stringWithFormat:@"Snooze Interval : %@ mins",[self.alarmInfo objectForKey:@"snoozeTime"]];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
-    if ([(NSDate *)[self.alarmInfo objectForKey:@"alarmTime"] compare:[NSDate date]] == NSOrderedAscending) {
+    
+    if (([(NSDate *)[self.alarmInfo objectForKey:@"alarmTime"] compare:[NSDate date]] == NSOrderedAscending) && self.alListViewController != nil) {
         snoozeButton.enabled = NO;
     }
 }
@@ -74,6 +75,8 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+#pragma mark - button functions
 
 -(IBAction)cancelAlarm:(id)sender {
     [self dismissViewControllerAnimated:YES completion:^{
@@ -103,6 +106,7 @@
         UILocalNotification *alarmNotification = [[UILocalNotification alloc] init];
         alarmNotification.alertBody = @"Alarm";
         alarmNotification.fireDate = ALNewDate;
+        alarmNotification.alertAction = @"Snooze";
         alarmNotification.soundName = @"Alarm.caf";
         alarmNotification.userInfo = [NSDictionary dictionaryWithDictionary:self.alarmInfo];
         [[UIApplication sharedApplication] scheduleLocalNotification:alarmNotification];
@@ -158,28 +162,26 @@
     }
 }
 
--(void) changeLabelText {
+-(void) changeSnoozeTime {
    
     // change DB
-    {
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        NSEntityDescription *entity = [NSEntityDescription entityForName:@"ALList" inManagedObjectContext:appDelegate.managedObjectContext];
-        
-        NSPredicate *aPredicate = [NSPredicate predicateWithFormat:@"%K == %@ ", @"alarmTime",[self.alarmInfo objectForKey:@"alarmTime"]];
-        [fetchRequest setEntity:entity];
-        [fetchRequest setPredicate:aPredicate];
-        NSError *error = nil;
-        NSArray *items = nil;
-        @try {
-            items = [appDelegate.managedObjectContext executeFetchRequest:fetchRequest error:&error];
-        }
-        @catch (NSException *exception) {
-            NSLog(@"exception is thrown from fetch result controller");
-        }
-        
-        [(ALList *)[items objectAtIndex:0]  setSnoozeTime:[NSNumber numberWithInt:self.snoozeTime]];
-        [appDelegate saveContext];
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"ALList" inManagedObjectContext:appDelegate.managedObjectContext];
+    
+    NSPredicate *aPredicate = [NSPredicate predicateWithFormat:@"%K == %@ ", @"alarmTime",[self.alarmInfo objectForKey:@"alarmTime"]];
+    [fetchRequest setEntity:entity];
+    [fetchRequest setPredicate:aPredicate];
+    NSError *error = nil;
+    NSArray *items = nil;
+    @try {
+        items = [appDelegate.managedObjectContext executeFetchRequest:fetchRequest error:&error];
     }
+    @catch (NSException *exception) {
+        NSLog(@"exception is thrown from fetch result controller");
+    }
+    
+    [(ALList *)[items objectAtIndex:0]  setSnoozeTime:[NSNumber numberWithInt:self.snoozeTime]];
+    [appDelegate saveContext];
     
     // change local alarmInfo
     [self.alarmInfo setValue:[NSString stringWithFormat:@"%d",self.snoozeTime] forKey:@"snoozeTime"];
@@ -187,7 +189,7 @@
     //change label
     self.snoozeLabel.text = [NSString stringWithFormat:@"Snooze Interval : %d mins",self.snoozeTime];
     
-    //change old notification
+    //delete old notification
     UILocalNotification *notificationToChange = nil;
     for (UILocalNotification *aLocalNotif in [[UIApplication sharedApplication] scheduledLocalNotifications]) {
         if ([[aLocalNotif.userInfo objectForKey:@"alarmTime"] compare:[self.alarmInfo objectForKey:@"alarmTime"]] == NSOrderedSame) {
@@ -204,6 +206,7 @@
         UILocalNotification *alarmNotification = [[UILocalNotification alloc] init];
         alarmNotification.alertBody = @"Alarm";
         alarmNotification.fireDate = [self.alarmInfo objectForKey:@"alarmTime"];
+        alarmNotification.alertAction = @"Snooze";
         alarmNotification.soundName = @"Alarm.caf";
         alarmNotification.userInfo = self.alarmInfo;
         [[UIApplication sharedApplication] scheduleLocalNotification:alarmNotification];

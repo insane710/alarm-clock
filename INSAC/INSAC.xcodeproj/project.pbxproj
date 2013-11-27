@@ -146,9 +146,6 @@
 		A26CC4D61843752200269320 /* INSAC */ = {
 			isa = PBXGroup;
 			children = (
-				A2FC1D75184605090007149F /* ALSnoozeViewController.h */,
-				A2FC1D76184605090007149F /* ALSnoozeViewController.m */,
-				A2FC1D77184605090007149F /* ALSnoozeViewController.xib */,
 				A26CC5081843780000269320 /* ALListViewController.h */,
 				A26CC5091843780000269320 /* ALListViewController.m */,
 				A26CC50A1843780000269320 /* ALListViewController.xib */,
@@ -158,6 +155,9 @@
 				A26CC50F1843791F00269320 /* ALSetViewController.h */,
 				A26CC5101843791F00269320 /* ALSetViewController.m */,
 				A26CC5111843791F00269320 /* ALSetViewController.xib */,
+				A2FC1D75184605090007149F /* ALSnoozeViewController.h */,
+				A2FC1D76184605090007149F /* ALSnoozeViewController.m */,
+				A2FC1D77184605090007149F /* ALSnoozeViewController.xib */,
 				A26CC4DF1843752200269320 /* AppDelegate.h */,
 				A26CC50D1843782F00269320 /* AppDelegate.m */,
 				A26CC4E81843752200269320 /* Images.xcassets */,

@@ -80,6 +80,7 @@
     UILocalNotification *alarmNotification = [[UILocalNotification alloc] init];
     alarmNotification.alertBody = @"Alarm";
     alarmNotification.fireDate = ALNewDate;
+    alarmNotification.alertAction = @"Snooze";
     alarmNotification.soundName = @"Alarm.caf";
     alarmNotification.userInfo = [NSDictionary dictionaryWithObjectsAndKeys:newAlarm.alarmTime,@"alarmTime", [newAlarm.snoozeTime stringValue],@"snoozeTime", nil];
     [[UIApplication sharedApplication] scheduleLocalNotification:alarmNotification];

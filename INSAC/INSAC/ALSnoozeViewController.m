@@ -160,7 +160,7 @@
         [[prevViewController ALSettingsView] reloadRowsAtIndexPaths:[NSArray arrayWithObjects:[NSIndexPath indexPathForRow:1 inSection:0], nil] withRowAnimation:UITableViewRowAnimationAutomatic];
     }
     else {
-        [(ALMainViewController *)prevViewController changeLabelText];
+        [(ALMainViewController *)prevViewController changeSnoozeTime];
     }
     [self.navigationController popViewControllerAnimated:YES];
 }

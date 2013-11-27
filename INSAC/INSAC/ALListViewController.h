@@ -9,9 +9,10 @@
 #import <UIKit/UIKit.h>
 #import "AppDelegate.h"
 
+/*Shows the list of alarms that have been set*/
 @interface ALListViewController : UITableViewController <NSFetchedResultsControllerDelegate> {
     AppDelegate *appDelegate;
-    NSIndexPath *viewingAlarmIndexPath;
+    NSIndexPath *viewingAlarmIndexPath; //store indexpath for delete case.
 }
 
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
